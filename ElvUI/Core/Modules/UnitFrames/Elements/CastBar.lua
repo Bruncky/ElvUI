@@ -16,18 +16,6 @@ local _, ns = ...
 local ElvUF = ns.oUF
 assert(ElvUF, 'ElvUI was unable to locate oUF.')
 
-local INVERT_ANCHORPOINT = {
-	TOPLEFT = 'BOTTOMRIGHT',
-	LEFT = 'RIGHT',
-	BOTTOMLEFT = 'TOPRIGHT',
-	RIGHT = 'LEFT',
-	TOPRIGHT = 'BOTTOMLEFT',
-	BOTTOMRIGHT = 'TOPLEFT',
-	CENTER = 'CENTER',
-	TOP = 'BOTTOM',
-	BOTTOM = 'TOP',
-}
-
 local ticks = {}
 
 function UF:Construct_Castbar(frame, moverName)
@@ -69,8 +57,8 @@ function UF:Construct_Castbar(frame, moverName)
 	castbar.LatencyTexture:SetVertexColor(0.69, 0.31, 0.31, 0.75)
 
 	castbar.bg = castbar:CreateTexture(nil, 'BORDER')
-	castbar.bg:SetAllPoints()
 	castbar.bg:SetTexture(E.media.blankTex)
+	castbar.bg:SetAllPoints()
 	castbar.bg:Show()
 
 	local button = CreateFrame('Frame', nil, castbar)
@@ -103,10 +91,14 @@ function UF:Configure_Castbar(frame)
 	local castbar = frame.Castbar
 	local db = frame.db.castbar
 
-	castbar:Width(db.width - ((UF.BORDER+UF.SPACING)*2))
-	castbar:Height(db.height - ((UF.BORDER+UF.SPACING)*2))
-	castbar.Holder:Size(db.width, db.height)
+	local SPACING1 = UF.BORDER + UF.SPACING
+	local SPACING2 = SPACING1 * 2
 
+	castbar.timeToHold = db.timeToHold
+	castbar:SetReverseFill(db.reverse)
+	castbar:ClearAllPoints()
+
+	castbar.Holder:Size(db.width, db.height)
 	local oSC = castbar.Holder:GetScript('OnSizeChanged')
 	if oSC then oSC(castbar.Holder) end
 
@@ -117,10 +109,6 @@ function UF:Configure_Castbar(frame)
 	if db.strataAndLevel and db.strataAndLevel.useCustomLevel then
 		castbar:SetFrameLevel(db.strataAndLevel.frameLevel)
 	end
-
-	castbar.timeToHold = db.timeToHold
-
-	castbar:SetReverseFill(db.reverse)
 
 	--Latency
 	if frame.unit == 'player' and db.latency then
@@ -156,24 +144,6 @@ function UF:Configure_Castbar(frame)
 	castbar.Text:SetWidth(castbar.Text:GetStringWidth())
 	castbar.Time:SetWidth(castbar.Time:GetStringWidth())
 
-	--Icon
-	if db.icon then
-		castbar.Icon = castbar.ButtonIcon
-		castbar.Icon:SetTexCoord(unpack(E.TexCoords))
-
-		if not db.iconAttached then
-			castbar.Icon.bg:Size(db.iconSize)
-		else
-			castbar.Icon.bg:Size(db.height-UF.SPACING*2)
-			castbar:Width(db.width - castbar.Icon.bg:GetWidth() - (UF.BORDER + UF.SPACING*5))
-		end
-
-		castbar.Icon.bg:Show()
-	else
-		castbar.ButtonIcon.bg:Hide()
-		castbar.Icon = nil
-	end
-
 	if db.spark then
 		castbar.Spark = castbar.Spark_
 		castbar.Spark:ClearAllPoints()
@@ -184,17 +154,24 @@ function UF:Configure_Castbar(frame)
 		castbar.Spark = nil
 	end
 
-	if db.hidetext then
-		castbar.Text:SetAlpha(0)
-		castbar.Time:SetAlpha(0)
+	local height
+	if db.overlayOnFrame == 'None' then
+		height = db.height
+
+		if db.positionsGroup then
+			castbar.Holder:ClearAllPoints()
+			castbar.Holder:Point(E.InverseAnchors[db.positionsGroup.anchorPoint], frame, db.positionsGroup.anchorPoint, db.positionsGroup.xOffset, db.positionsGroup.yOffset)
+		end
+
+		local iconWidth = db.icon and db.iconAttached and (height + UF.BORDER) or SPACING1
+		if frame.ORIENTATION == 'RIGHT' then
+			castbar:Point('BOTTOMRIGHT', castbar.Holder, -iconWidth, SPACING1)
+		else
+			castbar:Point('BOTTOMLEFT', castbar.Holder, iconWidth, SPACING1)
+		end
+
+		castbar:Size(db.width - iconWidth - SPACING1, db.height - SPACING2)
 	else
-		castbar.Text:SetAlpha(1)
-		castbar.Time:SetAlpha(1)
-	end
-
-	castbar:ClearAllPoints()
-
-	if db.overlayOnFrame ~= 'None' then
 		local anchor = frame[db.overlayOnFrame]
 		local height = anchor:GetHeight()
 
@@ -224,29 +201,43 @@ function UF:Configure_Castbar(frame)
 			castbar.Holder:Point(INVERT_ANCHORPOINT[db.positionsGroup.anchorPoint], frame, db.positionsGroup.anchorPoint, db.positionsGroup.xOffset, db.positionsGroup.yOffset)
 		end
 
-		if frame.ORIENTATION ~= 'RIGHT' then
-			castbar:Point('BOTTOMRIGHT', castbar.Holder, 'BOTTOMRIGHT', -(UF.BORDER+UF.SPACING), UF.BORDER+UF.SPACING)
+	--Icon
+	if db.icon then
+		castbar.Icon = castbar.ButtonIcon
+		castbar.Icon:SetTexCoord(unpack(E.TexCoords))
+
+		if db.overlayOnFrame == 'None' then
+			castbar.Icon.bg:Size(db.iconAttached and (height - UF.SPACING*2) or db.iconSize)
 		else
-			castbar:Point('BOTTOMLEFT', castbar.Holder, 'BOTTOMLEFT', UF.BORDER+UF.SPACING, UF.BORDER+UF.SPACING)
+			castbar.Icon.bg:Size(db.iconAttached and (height + UF.BORDER*2) or db.iconSize)
 		end
+
+		castbar.Icon.bg:ClearAllPoints()
+		castbar.Icon.bg:Show()
+
+		if not db.iconAttached then
+			local attachPoint = db.iconAttachedTo == 'Frame' and frame or frame.Castbar
+			castbar.Icon.bg:Point(E.InverseAnchors[db.iconPosition], attachPoint, db.iconPosition, db.iconXOffset, db.iconYOffset)
+		elseif frame.ORIENTATION == 'RIGHT' then
+			castbar.Icon.bg:Point('LEFT', castbar, 'RIGHT', (UF.thinBorders and 0 or 3), 0)
+		else
+			castbar.Icon.bg:Point('RIGHT', castbar, 'LEFT', -(UF.thinBorders and 0 or 3), 0)
+		end
+	else
+		castbar.ButtonIcon.bg:Hide()
+		castbar.Icon = nil
 	end
 
-	if not db.iconAttached and db.icon then
-		local attachPoint = db.iconAttachedTo == 'Frame' and frame or frame.Castbar
-		local anchorPoint = db.iconPosition
-		castbar.Icon.bg:ClearAllPoints()
-		castbar.Icon.bg:Point(INVERT_ANCHORPOINT[anchorPoint], attachPoint, anchorPoint, db.iconXOffset, db.iconYOffset)
-	elseif db.icon then
-		castbar.Icon.bg:ClearAllPoints()
-		if frame.ORIENTATION == 'RIGHT' then
-			castbar.Icon.bg:Point('LEFT', castbar, 'RIGHT', UF.SPACING*3, 0)
-		else
-			castbar.Icon.bg:Point('RIGHT', castbar, 'LEFT', -UF.SPACING*3, 0)
-		end
+	if db.hidetext then
+		castbar.Text:SetAlpha(0)
+		castbar.Time:SetAlpha(0)
+	else
+		castbar.Text:SetAlpha(1)
+		castbar.Time:SetAlpha(1)
 	end
 
 	--Adjust tick heights
-	castbar.tickHeight = castbar:GetHeight()
+	castbar.tickHeight = height
 
 	if db.ticks then --Only player unitframe has this
 		--Set tick width and color
@@ -417,7 +408,7 @@ function UF:PostCastStart(unit)
 
 	self.unit = unit
 
-	if db.castbar.displayTarget and self.curTarget then
+	if unit == 'player' and db.castbar.displayTarget and self.curTarget then
 		self.Text:SetText(self.spellName..' > '..self.curTarget)
 	end
 

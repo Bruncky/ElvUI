@@ -96,6 +96,8 @@ local function CreateRollButton(parent, texture, rolltype, tiptext)
 	f:SetScript('OnEnter', SetTip)
 	f:SetScript('OnLeave', GameTooltip_Hide)
 	f:SetScript('OnClick', ClickRoll)
+	f:SetScript('OnEnter', SetTip)
+	f:SetScript('OnLeave', GameTooltip_Hide)
 	f:SetMotionScriptsWhileDisabled(true)
 
 	f.parent = parent
@@ -166,6 +168,8 @@ function M:CreateRollFrame()
 
 	frame.rolls = {}
 
+	tinsert(M.RollBars, frame)
+
 	return frame
 end
 
@@ -174,15 +178,22 @@ local function GetFrame(i)
 		if not f.rollID and not i then
 			return f
 		end
+
+		return M:LootRoll_Create(i)
 	end
+end
 
-	local f = M:CreateRollFrame()
-	f:ClearAllPoints()
-	f:Point('TOP', next(M.RollBars) and M.RollBars[#M.RollBars] or _G.AlertFrameHolder, 'BOTTOM', 0, -4)
+function M:CANCEL_LOOT_ROLL(_, rollID)
+	cancelled_rolls[rollID] = true
 
-	tinsert(M.RollBars, f)
-
-	return f
+	for _, bar in next, M.RollBars do
+		if bar.rollID == rollID then
+			bar.rollID = nil
+			bar.time = nil
+			bar:Hide()
+			bar.button:UnregisterAllEvents()
+		end
+	end
 end
 
 function M:CANCEL_LOOT_ROLL(_, rollID)
@@ -262,8 +273,6 @@ function M:START_LOOT_ROLL(_, rollID, rollTime)
 	f.status:SetMinMaxValues(0, rollTime)
 	f.status:SetValue(rollTime)
 
-	f:ClearAllPoints()
-	f:Point('CENTER', _G.WorldFrame)
 	f:Show()
 
 	_G.AlertFrame:UpdateAnchors()

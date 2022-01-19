@@ -10,7 +10,7 @@ local AFK = E:GetModule('AFK')
 local ACH = E.Libs.ACH
 
 local _G = _G
-local wipe, ceil = wipe, ceil
+local wipe, next, ceil = wipe, next, ceil
 local IsMouseButtonDown = IsMouseButtonDown
 local FCF_GetNumActiveChatFrames = FCF_GetNumActiveChatFrames
 

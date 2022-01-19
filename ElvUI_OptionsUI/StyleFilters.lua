@@ -27,13 +27,16 @@ local raidTargetIcon = [[|TInterface\TargetingFrame\UI-RaidTargetingIcon_%s:0|t 
 local sortedClasses = E:CopyTable({}, CLASS_SORT_ORDER)
 sort(sortedClasses)
 
-C.SelectedNameplateStyleFilter = nil
+C.StyleFilterSelected = nil
+
+E.Options.args.nameplates.args.filters = ACH:Group(L["Style Filter"], nil, 10, 'tab', nil, nil, function() return not E.NamePlates.Initialized end)
+local StyleFitlers = E.Options.args.nameplates.args.filters.args
 
 E.Options.args.nameplate.args.filters = ACH:Group(L["Style Filter"], nil, 10, 'tab', nil, nil, function() return not E.NamePlates.Initialized end)
 local StyleFitlers = E.Options.args.nameplate.args.filters.args
 
 local function GetFilter(collect, profile)
-	local setting = (profile and E.db.nameplates.filters[C.SelectedNameplateStyleFilter]) or E.global.nameplate.filters[C.SelectedNameplateStyleFilter]
+	local setting = (profile and E.db.nameplates.filters[C.StyleFilterSelected]) or E.global.nameplates.filters[C.StyleFilterSelected]
 
 	if collect and setting then
 		return setting.triggers, setting.actions
@@ -41,6 +44,7 @@ local function GetFilter(collect, profile)
 		return setting
 	end
 end
+C.StyleFilterGetFilter = GetFilter
 
 local function DisabledFilter()
 	local profileTriggers = GetFilter(true, true)
@@ -316,6 +320,8 @@ for index = 1, 12 do
 
 			StyleFitlers.triggers.args.class.args[format('%s%s', classTag, 'spec')] = group
 		end
+
+		StyleFitlers.triggers.args.class.args[format('%s%s', classTag, 'spec')] = group
 	end
 end
 

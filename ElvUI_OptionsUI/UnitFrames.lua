@@ -12,6 +12,8 @@ local GetNumClasses = GetNumClasses
 local GetClassInfo = GetClassInfo
 local CopyTable = CopyTable
 
+local NUM_CLASSES = #CLASS_SORT_ORDER
+
 local orientationValues = {
 	LEFT = L["Left"],
 	MIDDLE = L["Middle"],
@@ -56,6 +58,16 @@ local blendModeValues = {
 
 local CUSTOMTEXT_CONFIGS, filters = {}, {}
 local carryFilterFrom, carryFilterTo
+
+local classTable = {}
+for i = 1, GetNumClasses() do
+	local classDisplayName, classTag = GetClassInfo(i)
+	if classTag then
+		classTable[classTag] = classDisplayName
+	end
+end
+
+local roles = { L["Tank"] , HEALER = L["Healer"], DAMAGER = L["DPS"] }
 
 -----------------------------------------------------------------------
 -- OPTIONS TABLES
@@ -284,20 +296,38 @@ local function GetOptionsTable_Castbar(updateFunc, groupName, numUnits)
 							end
 						end
 					else
-						local castbar = _G[frameName].Castbar
-						if not castbar.oldHide then
-							castbar.oldHide = castbar.Hide
-							castbar.Hide = castbar.Show
-							castbar:Show()
-						else
-							castbar.Hide = castbar.oldHide
-							castbar.oldHide = nil
-							castbar:Hide()
-						end
+						castbar.Hide = castbar.oldHide
+						castbar.oldHide = nil
+						castbar:Hide()
 					end
-				end,
-				type = 'execute',
-			}
+				end
+			end
+		elseif numUnits then
+			for i = 1, numUnits do
+				local castbar = _G[frameName..i].Castbar
+				if not castbar.oldHide then
+					castbar.oldHide = castbar.Hide
+					castbar.Hide = castbar.Show
+					castbar:Show()
+				else
+					castbar.Hide = castbar.oldHide
+					castbar.oldHide = nil
+					castbar:Hide()
+				end
+			end
+		else
+			local castbar = _G[frameName].Castbar
+			if not castbar.oldHide then
+				castbar.oldHide = castbar.Hide
+				castbar.Hide = castbar.Show
+				castbar:Show()
+			else
+				castbar.Hide = castbar.oldHide
+				castbar.oldHide = nil
+				castbar:Hide()
+			end
+		end
+	end
 
 	config.args.configureButton = ACH:Execute(L["Coloring"], L["This opens the UnitFrames Color settings. These settings affect all unitframes."], 7, function() ACD:SelectGroup('ElvUI', 'unitframe', 'allColorsGroup') end)
 	config.args.spark = ACH:Toggle(L["Spark"], L["Display a spark texture at the end of the castbar statusbar to help show the differance between castbar and backdrop."], 8)
@@ -784,7 +814,7 @@ end
 local function GetOptionsTable_ReadyCheckIcon(updateFunc, groupName)
 	local config = ACH:Group(L["Ready Check Icon"], nil, nil, nil, function(info) return E.db.unitframe.units[groupName].readycheckIcon[info[#info]] end, function(info, value) E.db.unitframe.units[groupName].readycheckIcon[info[#info]] = value updateFunc(UF, groupName) end)
 	config.args.enable = ACH:Toggle(L["Enable"], nil, 0)
-	config.args.attachTo = ACH:Select(L["Position"], nil, 2, C.Values.AllPoints)
+	config.args.position = ACH:Select(L["Position"], nil, 2, C.Values.AllPoints)
 	config.args.attachToObject = ACH:Select(L["Attach To"], L["The object you want to attach to."], 4, attachToValues)
 	config.args.size = ACH:Range(L["Size"], nil, 5, { min = 8, max = 60, step = 1 })
 	config.args.xOffset = ACH:Range(L["X-Offset"], nil, 6, { min = -300, max = 300, step = 1 })
@@ -898,20 +928,15 @@ local function GetOptionsTable_GeneralGroup(updateFunc, groupName, numUnits)
 
 		config.args.sortingGroup.args.roleSetup = ACH:Group(L["Role Order"], nil, 7, nil, nil, nil, nil, function() return E.db.unitframe.units[groupName].groupBy ~= 'ROLE' end)
 		config.args.sortingGroup.args.roleSetup.inline = true
-		config.args.sortingGroup.args.roleSetup.args.ROLE1 = ACH:Select(' ', nil, 1, { TANK = L["Tank"] , HEALER = L["Healer"], DAMAGER = L["DPS"] })
-		config.args.sortingGroup.args.roleSetup.args.ROLE2 = ACH:Select(' ', nil, 2, { TANK = L["Tank"] , HEALER = L["Healer"], DAMAGER = L["DPS"] })
-		config.args.sortingGroup.args.roleSetup.args.ROLE3 = ACH:Select(' ', nil, 3, { TANK = L["Tank"] , HEALER = L["Healer"], DAMAGER = L["DPS"] })
+		config.args.sortingGroup.args.roleSetup.args.ROLE1 = ACH:Select(' ', nil, 1, roles)
+		config.args.sortingGroup.args.roleSetup.args.ROLE2 = ACH:Select(' ', nil, 2, roles)
+		config.args.sortingGroup.args.roleSetup.args.ROLE3 = ACH:Select(' ', nil, 3, roles)
 
 		config.args.sortingGroup.args.classSetup = ACH:Group(L["Class Order"], nil, 7, nil, nil, nil, nil, function() return E.db.unitframe.units[groupName].groupBy ~= 'CLASS' end)
 		config.args.sortingGroup.args.classSetup.inline = true
 
-		local classTable = {}
-		for i = 1, GetNumClasses() do
-			local classDisplayName, classTag = GetClassInfo(i)
-			if classTag then -- Classic ERA has nil on 10? maybe others
-				classTable[classTag] = classDisplayName
-				config.args.sortingGroup.args.classSetup.args['CLASS'..i] = ACH:Select(' ', nil, i, classTable)
-			end
+		for i = 1, NUM_CLASSES do
+			config.args.sortingGroup.args.classSetup.args['CLASS'..i] = ACH:Select(' ', nil, i, classTable)
 		end
 	else
 		config.args.positionsGroup.args.width.set = function(info, value) if E.db.unitframe.units[groupName].castbar and E.db.unitframe.units[groupName].castbar.width == E.db.unitframe.units[groupName][info[#info]] then E.db.unitframe.units[groupName].castbar.width = value end E.db.unitframe.units[groupName][info[#info]] = value updateFunc(UF, groupName, numUnits) end
@@ -949,8 +974,7 @@ local function GetOptionsTable_CombatIconGroup(updateFunc, groupName, numUnits)
 	config.args.color = ACH:Color(L["COLOR"], nil, 7, true, nil, function() local c, d = E.db.unitframe.units[groupName].CombatIcon.color, P.unitframe.units[groupName].CombatIcon.color return c.r, c.g, c.b, c.a, d.r, d.g, d.b, d.a end, function(_, r, g, b, a) local c = E.db.unitframe.units[groupName].CombatIcon.color c.r, c.g, c.b, c.a = r, g, b, a updateFunc(UF, groupName, numUnits) UF:TestingDisplay_CombatIndicator(UF[groupName]) end, nil, function() return E.db.unitframe.units[groupName].CombatIcon.defaultColor end)
 	config.args.texture = ACH:Select(L["Texture"], nil, 8, function() local table = { CUSTOM = L["CUSTOM"], DEFAULT = L["DEFAULT"] } for key, path in next, E.Media.CombatIcons do if key ~= 'DEFAULT' then table[key] = E:TextureString(path, ':14') end end return table end)
 	config.args.texture.sortByValue = true
-	config.args.customTexture = ACH:Input(L["Custom Texture"], nil, 9, nil, nil, nil, function(_, value) E.db.unitframe.units[groupName].CombatIcon.customTexture = (value and (not value:match('^%s-$')) and value) or nil updateFunc(UF, groupName, numUnits) UF:TestingDisplay_CombatIndicator(UF[groupName]) end)
-	config.args.customTexture.customWidth = 250
+	config.args.customTexture = ACH:Input(L["Custom Texture"], nil, 9, nil, 250, nil, function(_, value) E.db.unitframe.units[groupName].CombatIcon.customTexture = (value and (not value:match('^%s-$')) and value) or nil updateFunc(UF, groupName, numUnits) UF:TestingDisplay_CombatIndicator(UF[groupName]) end)
 
 	return config
 end
@@ -979,7 +1003,7 @@ E.Options.args.unitframe = ACH:Group(L["UnitFrames"], nil, 2, 'tab', function(in
 local UnitFrame = E.Options.args.unitframe.args
 
 UnitFrame.intro = ACH:Description(L["UNITFRAME_DESC"], 0)
-UnitFrame.enable = ACH:Toggle(L["Enable"], nil, 1, nil, nil, nil, function() return E.private.unitframe.enable end, function(_, value) E.private.unitframe.enable = value E:StaticPopup_Show('PRIVATE_RL') end)
+UnitFrame.enable = ACH:Toggle(L["Enable"], nil, 1, nil, nil, nil, function() return E.private.unitframe.enable end, function(_, value) E.private.unitframe.enable = value E.ShowPopup = true end)
 UnitFrame.statusbar = ACH:SharedMediaStatusbar(L["StatusBar Texture"], L["Main statusbar texture."], 2, nil, nil, function(info, value) E.db.unitframe[info[#info]] = value UF:Update_StatusBars() end)
 UnitFrame.resetFilters = ACH:Execute(L["Reset Aura Filters"], nil, 3, function() E:StaticPopup_Show('RESET_UF_AF') end)
 UnitFrame.borderOptions = ACH:Execute(L["Border Options"], nil, 4, function() ACD:SelectGroup('ElvUI', 'general', 'media') end)
@@ -1007,7 +1031,7 @@ UnitFrame.generalOptionsGroup.args.raidDebuffIndicator.inline = true
 UnitFrame.generalOptionsGroup.args.raidDebuffIndicator.args.instanceFilter = ACH:Select(L["Dungeon & Raid Filter"], nil, 1, function() wipe(filters) local list = E.global.unitframe.aurafilters if not list then return end for filter in pairs(list) do filters[filter] = filter end return filters end)
 UnitFrame.generalOptionsGroup.args.raidDebuffIndicator.args.otherFilter = ACH:Select(L["Other Filter"], nil, 2, function() wipe(filters) local list = E.global.unitframe.aurafilters if not list then return end for filter in pairs(list) do filters[filter] = filter end return filters end)
 
-UnitFrame.generalOptionsGroup.args.disabledBlizzardFrames = ACH:Group(L["Disabled Blizzard Frames"], nil, 8, nil, function(_, key) return E.private.unitframe.disabledBlizzardFrames[key] end, function(_, key, value) E.private.unitframe.disabledBlizzardFrames[key] = value E:StaticPopup_Show('PRIVATE_RL') end)
+UnitFrame.generalOptionsGroup.args.disabledBlizzardFrames = ACH:Group(L["Disabled Blizzard Frames"], nil, 8, nil, function(_, key) return E.private.unitframe.disabledBlizzardFrames[key] end, function(_, key, value) E.private.unitframe.disabledBlizzardFrames[key] = value if key == 'castbar' then UF:CreateAndUpdateUF('player') else E.ShowPopup = true end end)
 UnitFrame.generalOptionsGroup.args.disabledBlizzardFrames.inline = true
 
 UnitFrame.generalOptionsGroup.args.disabledBlizzardFrames.args.individual = ACH:MultiSelect(L["Individual Units"], nil, 1, { player = L["Player"], target = L["Target"], focus = not E.Classic and L["Focus"] or nil })
@@ -1971,8 +1995,7 @@ Player.RestIcon.args.defaultColor = ACH:Toggle(L["Default Color"], nil, 6)
 Player.RestIcon.args.color = ACH:Color(L["COLOR"], nil, 7, true, nil, function() local c, d = E.db.unitframe.units.player.RestIcon.color, P.unitframe.units.player.RestIcon.color return c.r, c.g, c.b, c.a, d.r, d.g, d.b, d.a end, function(_, r, g, b, a) local c = E.db.unitframe.units.player.RestIcon.color c.r, c.g, c.b, c.a = r, g, b, a UF:CreateAndUpdateUF('player') UF:TestingDisplay_RestingIndicator(UF.player) end, nil, function() return E.db.unitframe.units.player.RestIcon.defaultColor end)
 Player.RestIcon.args.texture = ACH:Select(L["Texture"], nil, 8, { CUSTOM = L["CUSTOM"], DEFAULT = L["DEFAULT"] })
 Player.RestIcon.args.texture.sortByValue = true
-Player.RestIcon.args.customTexture = ACH:Input(L["Custom Texture"], nil, 9, nil, nil, nil, function(_, value) E.db.unitframe.units.player.RestIcon.customTexture = (value and (not value:match('^%s-$')) and value) or nil UF:CreateAndUpdateUF('player') UF:TestingDisplay_RestingIndicator(UF.player) end)
-Player.RestIcon.args.customTexture.customWidth = 250
+Player.RestIcon.args.customTexture = ACH:Input(L["Custom Texture"], nil, 9, nil, 250, nil, function(_, value) E.db.unitframe.units.player.RestIcon.customTexture = (value and (not value:match('^%s-$')) and value) or nil UF:CreateAndUpdateUF('player') UF:TestingDisplay_RestingIndicator(UF.player) end)
 
 for key, icon in pairs(E.Media.RestIcons) do
 	Player.RestIcon.args.texture.values[key] = E:TextureString(icon, ':14:14')

@@ -43,7 +43,7 @@ local function GetUnitSettings(unit, name)
 	group.args.copySettings = ACH:Select(L["Copy settings from"], L["Copy settings from another unit."], -7, copyValues, nil, nil, C.Blank, function(_, value) NP:CopySettings(value, unit) NP:ConfigureAll() end)
 
 	group.args.general = ACH:Group(L["General"], nil, 1, nil, function(info) return E.db.nameplates.units[unit][info[#info]] end, function(info, value) E.db.nameplates.units[unit][info[#info]] = value NP:SetCVars() NP:ConfigureAll() end)
-	group.args.general.args.visibilityShortcut = ACH:Execute(L["Visibility"], nil, 100, function() ACD:SelectGroup('ElvUI', 'nameplate', 'generalGroup', 'general', 'plateVisibility') end)
+	group.args.general.args.visibilityShortcut = ACH:Execute(L["Visibility"], nil, 100, function() ACD:SelectGroup('ElvUI', 'nameplates', 'generalGroup', 'general', 'plateVisibility') end)
 	group.args.general.args.nameOnly = ACH:Toggle(L["Name Only"], nil, 101)
 	group.args.general.args.showTitle = ACH:Toggle(L["Show Title"], L["Title will only appear if Name Only is enabled or triggered in a Style Filter."], 102)
 	group.args.general.args.smartAuraPosition = ACH:Select(L["Smart Aura Position"], L["Will show Buffs in the Debuff position when there are no Debuffs active, or vice versa."], 104, C.Values.SmartAuraPositions)
@@ -51,7 +51,7 @@ local function GetUnitSettings(unit, name)
 	group.args.healthGroup = ACH:Group(L["Health"], nil, 2, nil, function(info) return E.db.nameplates.units[unit].health[info[#info]] end, function(info, value) E.db.nameplates.units[unit].health[info[#info]] = value NP:ConfigureAll() end)
 	group.args.healthGroup.args.enable = ACH:Toggle(L["Enable"], nil, 1, nil, nil, nil, nil, nil, nil, function() return unit == 'PLAYER' end)
 	group.args.healthGroup.args.height = ACH:Range(L["Height"], nil, 3, { min = minHeight, max = MaxHeight(unit), step = 1 })
-	group.args.healthGroup.args.width = ACH:Execute(L["Width"], nil, 4, function() ACD:SelectGroup('ElvUI', 'nameplate', 'generalGroup', 'general', 'clickableRange') end)
+	group.args.healthGroup.args.width = ACH:Execute(L["Width"], nil, 4, function() ACD:SelectGroup('ElvUI', 'nameplates', 'generalGroup', 'general', 'clickableRange') end)
 	group.args.healthGroup.args.healPrediction = ACH:Toggle(L["Heal Prediction"], nil, 5)
 
 	group.args.healthGroup.args.textGroup = ACH:Group(L["Text"], nil, 200, nil, function(info) return E.db.nameplates.units[unit].health.text[info[#info]] end, function(info, value) E.db.nameplates.units[unit].health.text[info[#info]] = value NP:ConfigureAll() end)
@@ -339,7 +339,7 @@ local function GetUnitSettings(unit, name)
 		group.args.questIcon.args.fontGroup.args.font = ACH:SharedMediaFont(L["Font"], nil, 1)
 		group.args.questIcon.args.fontGroup.args.fontSize = ACH:Range(L["Font Size"], nil, 2, { min = 4, max = 60, step = 1 })
 		group.args.questIcon.args.fontGroup.args.fontOutline = ACH:FontFlags(L["Font Outline"], nil, 3)
-		group.args.questIcon.args.fontGroup.args.position = ACH:Select(L["Text Position"], nil, 4, { TOP = 'TOP', LEFT = 'LEFT', BOTTOM = 'BOTTOM', CENTER = 'CENTER', TOPLEFT = 'TOPLEFT', BOTTOMLEFT = 'BOTTOMLEFT', BOTTOMRIGHT = 'BOTTOMRIGHT', RIGHT = 'RIGHT', TOPRIGHT = 'TOPRIGHT' })
+		group.args.questIcon.args.fontGroup.args.textPosition = ACH:Select(L["Text Position"], nil, 4, { TOP = 'TOP', LEFT = 'LEFT', BOTTOM = 'BOTTOM', CENTER = 'CENTER', TOPLEFT = 'TOPLEFT', BOTTOMLEFT = 'BOTTOMLEFT', BOTTOMRIGHT = 'BOTTOMRIGHT', RIGHT = 'RIGHT', TOPRIGHT = 'TOPRIGHT' })
 	end
 
 	if unit == 'PLAYER' or unit == 'FRIENDLY_PLAYER' or unit == 'ENEMY_PLAYER' then
@@ -546,8 +546,8 @@ E.Options.args.nameplate.args.colorsGroup.args.classResources.args.CHI_POWER = A
 E.Options.args.nameplate.args.colorsGroup.args.classResources.args.COMBO_POINTS.args.chargedComboPoint = ACH:Color(L["Charged Combo Point"], nil, 13, nil, nil, function(info) local t, d = E.db.nameplates.colors.classResources[info[#info]], P.nameplates.colors.classResources[info[#info]] return t.r, t.g, t.b, t.a, d.r, d.g, d.b end, function(info, r, g, b) local t = E.db.nameplates.colors.classResources[info[#info]] t.r, t.g, t.b = r, g, b NP:ConfigureAll() end)
 
 for i = 1, 6 do
-	E.Options.args.nameplate.args.colorsGroup.args.classResources.args.CHI_POWER.args[''..i] = ACH:Color(L["CHI_POWER"]..' #'..i)
-	E.Options.args.nameplate.args.colorsGroup.args.classResources.args.COMBO_POINTS.args[''..i] = ACH:Color(L["COMBO_POINTS"]..' #'..i)
+	E.Options.args.nameplates.args.colorsGroup.args.classResources.args.CHI_POWER.args[''..i] = ACH:Color(L["CHI_POWER"]..' #'..i)
+	E.Options.args.nameplates.args.colorsGroup.args.classResources.args.COMBO_POINTS.args[''..i] = ACH:Color(L["COMBO_POINTS"]..' #'..i)
 end
 
 E.Options.args.nameplate.args.playerGroup = GetUnitSettings('PLAYER', L["Player"])
@@ -568,7 +568,7 @@ E.Options.args.nameplate.args.targetGroup.args.arrows = ACH:MultiSelect(L["Arrow
 E.Options.args.nameplate.args.targetGroup.args.arrows.customWidth = 80
 
 for key, arrow in pairs(E.Media.Arrows) do
-	E.Options.args.nameplate.args.targetGroup.args.arrows.values[key] = E:TextureString(arrow, ':32:32')
+	E.Options.args.nameplates.args.targetGroup.args.arrows.values[key] = E:TextureString(arrow, ':32:32')
 end
 
 E.Options.args.nameplate.args.targetGroup.args.classBarGroup = ACH:Group(L["Classbar"], nil, 13, nil, function(info) return E.db.nameplates.units.TARGET.classpower[info[#info]] end, function(info, value) E.db.nameplates.units.TARGET.classpower[info[#info]] = value NP:ConfigureAll() end)
