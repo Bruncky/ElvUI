@@ -1,21 +1,90 @@
-### Version 12.55 [ ETA: 🍨 ]
+### Version 12.61 [ ETA: 🍨 ]
 
-Tooltips: Fixed an error with item quality  
+UnitFrames: Fixed AuraBars font issue  
+
+___
+### Version 12.60 [ January 18th 2022 ]
+
+**Important**  
+ActionBars: Swapped to Custom Glow (General -> Cosmetic)  
+Config: Added Search section (with Whats New button)  
+
+**Changes**  
+Auras: Top Aurs time will have cooldown time updated properly in Tooltip  
+Config: Fixed error when deleting a StyleFilter  
+Config: Fixed some options displaying in Russian  
+Minimap: Scaling and Font fixes for Location  
+Misc: LootRoll has several new options  
+Movers: Added mover for TimeAlertFrame on Korean region  
+NamePlates: Attempted to fix Widget alpha/scaling issues  
+NamePlates: Fixed Desaturate Icon option  
+NamePlates: Fixed Off Tank setting and added an Off Tank (Pets) which shows some off tank pets  
+NamePlates: Fixed Quest Icon text position option  
+Skins: Attempted to fix "New Mythic+ Season" overlap issue another way  
+Skins: Fixed conquest and PVP rating tooltip skin  
+Tags: Fixed [class:icon] cropping  
+UnitFrames: Added an option to toggle Blizzards default Castbar  
+UnitFrames: Fixed "attach to" option for Ready Check Icon  
+UnitFrames: Fixed "Display Target" as it only works for Player  
+UnitFrames: Fixed kyrian rogue charged combo points  
+UnitFrames: Fixed non attached Castbar Icon  
+UnitFrames: Fixed sort by class option  
+
+___
+### Version 12.59 [ January 18th 2022 ]
+Simpy forgot to remove classic/tbc TOCs  
+
+___
+### Version 12.58 [ December 4th 2021 ]
+
+ActionBars: Fixed layering issue (Keybinds on Pet Bar)  
+Bags: Added an option to hide Gold  
+Bags: Fixed an issue with mouseover tooltip  
+Chat: Added an option to hide channel names  
+DataTexts: Fixed Bags DataText  
+Minimap: Added option to scale the Minimap  
+Misc: Reworked LootRoll and added options  
+NamePlates: Updated StyleFilters config  
+Skins: Button Hover Glow in the Guild Bank fixed  
+UnitFrames: Added reverse fill option for Aura Bars  
+
+___
+### Version 12.57 [ November 22nd 2021 ]
+
+Bags: Count position was getting stuck  
+UnitFrames: Fixed an issue with transparent power color  
+UnitFrames: Added option to Auto Hide Power out of combat  
+WorldMap: Fixed Coordinates level and a few Fullscreen Map issues  
+Skins: Fixed the Widget Bar not being skinned properly  
+Skins: Error when using Barbershop  
+
+___
+### Version 12.56 [ November 16th 2021 ]
+
+Datatext: Readded Haste customization settings  
+Skins: Fixed Tooltip skin when they have an embedded statusbar  
+ActionBars: Fixed issue when buttons wouldn't update count after being traded  
+Bags: Corrected the display of Cooldown timers (sometimes they wouldn't appear)  
+Filters: Added Soothing Mist to Monk Aurawatch  
+
+___
+### Version 12.55 [ November 13th 2021 ]
+
+Tooltip: Fixed Item Quality Color error  
+Datatext: Readded events for several stat datatexts  
 
 ___
 ### Version 12.54 [ November 13th 2021 ]
 
-Bags: Fixed bank not updating correctly  
-Cooldown Text: Added a global option for rounding  
-Datatexts: Add Leech back in (oops)  
-Datatexts: Fix MovementSpeed not updating  
-Skins: Updated GM Ticket  
-Tooltips: Add option to display Item Count while using the Modifier for ids  
+Bags: Adjusted how Bags and Bank are updated  
+Cooldown Text: Added a global option for rounding and improved transition between one minute and seconds  
+Datatexts: Add Leech back in and fixed MovementSpeed not updating properly  
+Tooltips: Add option to display Item Count when using the Modifier for Item IDs  
 
 ___
 ### Version 12.53 [ November 11th 2021 ]
 
-Fixed an error in DataTexts & DataBars  
+Datatext: Fix error with Experience  
 
 ___
 ### Version 12.52 [ November 11th 2021 ]

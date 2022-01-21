@@ -1,6 +1,89 @@
-### Version 2.26 [ ETA: 🍨 ]
+### Version 2.34 [ ETA: 🍨 ]
 
+___
+### Version 2.33 [ January 18th 2022 ]
+
+Skins: Fixed errors in Raid.lua  
+Libraries: Adjusted LibClassicSpecs to not break VuhDo  
+UnitFrames: Fixed AuraBars font issue  
+
+___
+### Version 2.32 [ January 18th 2022 ]
+
+**Important**  
+ActionBars: Swapped to Custom Glow (General -> Cosmetic)  
+Config: Added Search section (with Whats New button)  
+
+**Changes**  
+Auras: Tooltip fixes for top auras  
+Config: Fixed some options displaying in russian  
+DataTexts: Fixes for party invites  
+Filters: Updated RaidDebuffs for phase 3 raids  
+General: Added an option to load max camera distance on login  
+Libraries: Added LibClassicSpecs for roles and specs  
+Minimap: Scaling and Font fixes  
+Misc: LootRoll has several new options  
+NamePlates: Fixed error when deleting a StyleFilter  
+Skins: Updated Raid Manager  
+UnitFrames: Added an option to toggle Blizzards default Castbar  
+UnitFrames: Adjusted spark for EnergyManaRegen ticks  
+UnitFrames: Fixed "attach to" option for Ready Check Icon  
+UnitFrames: Fixed non attached Castbar Icon  
+UnitFrames: Fixed sort by class  
+UnitFrames: LibHealComm-4.0 for HoTs  
+
+___
+### Version 2.31 [ December 4th 2021 ]
+
+ActionBars: Fixed layering issue (Keybinds on Pet Bar)  
+Bags: Added an option to hide Gold  
+Bags: Fixed an issue with mouseover tooltip  
+Chat: Added an option to hide channel names  
+DataTexts: Fixed Bags DataText  
+Minimap: Added option to scale the Minimap  
+Misc: Reworked LootRoll and added options  
+NamePlates: Updated StyleFilters config  
+Skins: Fixed button hover glow in GuildBank  
+UnitFrames: Added reverse fill option for Aura Bars  
+UnitFrames: Updated spark for EnergyManaRegen ticks  
+
+___
+### Version 2.30 [ November 24th 2021 ]
+
+DataTexts: Updated Friends  
+NamePlates: Updates for StyleFilters config  
+Skins: Updated trade window  
+UnitFrames: Fixed an issue with transparent power color  
+UnitFrames: Smart Raid Filter defaults to 5 groups for "Raid" now (8 for Raid40)  
+
+___
+### Version 2.29 [ November 19th 2021 ]
+
+UnitFrames: Castbar color hotfix  
+UnitFrames: ChannelTicks hotfix  
+
+___
+### Version 2.28 [ November 19th 2021 ]
+
+Map: Fixes for the fade while moving option  
+Minimap: Updated middle-mouse dropdown  
+NamePlates: Reset CVar fix for non-selected unit alpha (Fixes Setup CVar step in the installer as well.)  
+Tags: Fixed threatcolor  
+
+___
+### Version 2.27 [ November 16th 2021 ]
+
+ActionBars: Fixed Microbar bugs  
+
+___
+### Version 2.26 [ November 16th 2021 ]
+
+Cooldown Text: Updates for Bag CD text  
+DataTexts: Fixed Spell Hit lua error  
+DataTexts: Fixed Haste Datatext Customization Settings  
+DataTexts: Readded the Haste DT Tooltip  
 Tooltips: Fixed an error with item quality  
+UnitFrames: Fixed castbar/custom colors  
 
 ___
 ### Version 2.25 [ November 14th 2021 ]
